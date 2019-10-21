@@ -78,6 +78,8 @@ public:
 		lk.unlock();
 	}
 
+	bool IsInitialized() const {return bInitialized;}
+
 	void SetCommonLog(std::ofstream* pOut) {pCommon = pOut;}
 
 private:
@@ -90,6 +92,7 @@ public:
 private:
 	int fd;
 	char buffer[buff_size];
+	bool bInitialized;
 	mutex fd_mutex;
 	CReadThread ReadThread;
 	string CmdBuffer;
@@ -103,7 +106,6 @@ private:
 
 	std::vector<SScanEntry> ExpectedList;    // absence leads to an error
 	std::vector<SScanEntry> UnExpectedList;  // occurring leads to an error
-	//std::vector<string> UnExpectedEvents;
 
 	std::mutex scan_mutex;
 	std::condition_variable scan_event;

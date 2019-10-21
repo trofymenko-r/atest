@@ -10,20 +10,25 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-CStrBaseTest::CStrBaseTest(CSerial& Serial):CTest(Serial)
+CStrBaseTest::CStrBaseTest(SEnvironment& Env):CTest(Env)
 {
 	Name = "str_base";
 }
 
 CStrBaseTest::~CStrBaseTest()
 {
-	// TODO Auto-generated destructor stub
+
 }
 
 bool CStrBaseTest::Init()
 {
 	if (!CTest::Init())
 		return false;
+
+	if (!Env.VcpuSerial.IsInitialized()) {
+		cerr << "'" << Name << "' test needs VCPU console" << endl;
+		return false;
+	}
 
 	return true;
 }
@@ -35,7 +40,7 @@ bool CStrBaseTest::Run()
 	string Cycle;
 	const int CycleCount = 300;
 	const int InStrTimeOut = 20;
-	const int OutStrTimeOut = 30;
+	//const int OutStrTimeOut = 30;
 	StartTime = time(nullptr);
 
 	system("setterm -cursor off");
@@ -48,38 +53,38 @@ bool CStrBaseTest::Run()
 		CycleDir = LogDir + "/" + Cycle;
 		mkdir(CycleDir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
-		Serial.SaveOutput(CycleDir + "/serial");
-		Serial.BlankLine(3);
-		pIgnControl->Off();
+		Env.Serial.SaveOutput(CycleDir + "/serial");
+		Env.Serial.BlankLine(3);
+		Env.pIgnControl->Off();
 		Log(Common, cout, "IGN off");
 
-		Serial.ResetScaner();
-		Serial.ScanOutput("pre-suspend", CSerial::EScanType::ST_EXPECTED);
+		Env.Serial.ResetScaner();
+		Env.Serial.ScanOutput("pre-suspend", CSerial::EScanType::ST_EXPECTED);
 		//Serial.ScanOutput("Suspending console1", CSerial::EScanType::ST_EXPECTED);
-		Serial.ScanOutput("Suspending console(s)", CSerial::EScanType::ST_EXPECTED, true);
-		CSerial::EScanResult Result = Serial.WaitOutput(InStrTimeOut*1000);
+		Env.Serial.ScanOutput("Suspending console(s)", CSerial::EScanType::ST_EXPECTED, true);
+		CSerial::EScanResult Result = Env.Serial.WaitOutput(InStrTimeOut*1000);
 		if (Result != CSerial::EScanResult::SR_OK) {
 			Log(Common, cerr, "error: incorrect output");
 			failed = true;
 		}
 
-		if (!Serial.WaitUntilDied(10, true)) {
+		if (!Env.Serial.WaitUntilDied(10, true)) {
 			Log(Common, cerr, "error: STR mode not reached");
 			failed = true;
 			break;
 		}
 
-		Serial.WriteNotice("===== STR MODE =====\n");
+		Env.Serial.WriteNotice("===== STR MODE =====\n");
 		Log(Common, cout, "STR mode detected");
 		sleep(10);
 
-		pIgnControl->On();
+		Env.pIgnControl->On();
 		Log(Common, cout, "IGN on");
 
-		Serial.ResetScaner();
-		Serial.ScanOutput("usb 1-1.3: new high-speed USB device", CSerial::EScanType::ST_EXPECTED, true);
+		Env.Serial.ResetScaner();
+		Env.Serial.ScanOutput("usb 1-1.3: new high-speed USB device", CSerial::EScanType::ST_EXPECTED, true);
 		//Serial.ScanOutput("init.post_wakeup.sh: late-resume of init exit", CSerial::EScanType::ST_EXPECTED, true);
-		Result = Serial.WaitOutput(InStrTimeOut*1000);
+		Result = Env.Serial.WaitOutput(InStrTimeOut*1000);
 		if (Result != CSerial::EScanResult::SR_OK) {
 			failed = true;
 			if (!IsInSystem()) {
@@ -91,7 +96,7 @@ bool CStrBaseTest::Run()
 		} else
 			Log(Common, cout, "device on 1-1.3 port detected");
 
-		Serial.BlankLine(3);
+		Env.Serial.BlankLine(3);
 
 		// wait for wake up output
 		//Serial.WaitUntilSilent(10, OutStrTimeOut, true);
@@ -104,9 +109,9 @@ bool CStrBaseTest::Run()
 		Log(Common, cout, "IDLE mode detected");
 
 		// wait host connection
-		Serial.ResetScaner();
-		Serial.ScanOutput("android_work: sent uevent USB_STATE=CONFIGURED", CSerial::EScanType::ST_EXPECTED, true);
-		Result = Serial.WaitOutput(30*1000);
+		Env.Serial.ResetScaner();
+		Env.Serial.ScanOutput("android_work: sent uevent USB_STATE=CONFIGURED", CSerial::EScanType::ST_EXPECTED, true);
+		Result = Env.Serial.WaitOutput(30*1000);
 		if (Result != CSerial::EScanResult::SR_OK) {
 			Log(Common, cerr, "warning: host connection not detected");
 			//failed = true;
@@ -114,26 +119,21 @@ bool CStrBaseTest::Run()
 			Log(Common, cerr, "host connection detected");
 
 
-		Serial.ResetScaner();
-		Serial.ScanOutput("msm_vidc: info: Opening video instance:", CSerial::EScanType::ST_EXPECTED, true);
-		Result = Serial.WaitOutput(10*1000);
+		Env.Serial.ResetScaner();
+		Env.Serial.ScanOutput("msm_vidc: info: Opening video instance:", CSerial::EScanType::ST_EXPECTED, true);
+		Result = Env.Serial.WaitOutput(10*1000);
 		if (Result != CSerial::EScanResult::SR_OK) {
 			Log(Common, cerr, "warning: CarPlay video mode not detected");
 			//failed = true;
 		} else
 			Log(Common, cerr, "CarPlay video mode detected");
 
+		Env.Serial.WaitUntilSilent(3, 10);
 
-
-
-		Serial.WaitUntilSilent(3, 10);
-
-		if (!Serial.SendCmdMatch("ifconfig", "usb0      Link encap:Ethernet")) {
+		if (!Env.Serial.SendCmdMatch("ifconfig", "usb0      Link encap:Ethernet")) {
 			Log(Common, cerr, "warning: ncm interface not detected");
-			//Log(Common, cerr, "CarPlay not started");
-			//failed = true;
 		}
-		Serial.Send("lsusb");
+		Env.Serial.Send("lsusb");
 
 		Log(Common, cout, Cycle + ": finish");
 		LogOut(Common, cout, "*****************************");

@@ -20,6 +20,7 @@
 using namespace std;
 
 CSerial::CSerial():fd(0),
+		bInitialized(false),
 		ReadThread(this),
 		cmd_process(false),
 		save_data(false),
@@ -41,22 +42,6 @@ bool CSerial::Init(const string& ttyDev, int BaudRate, int cflag, int iflag)
 	struct termios tty;
 	int ret;
 	string DevicePath = "/dev/" + ttyDev;
-
-
-//	string Prev = "on";
-//	string Curr = "e, two, three, four, five, six, seven, eight, nine, ten";
-//	ScanOutput("four1", CSerial::EScanType::ST_EXPECTED);
-//	ScanOutput("eight", CSerial::EScanType::ST_EXPECTED);
-//	ScanOutput("four", CSerial::EScanType::ST_EXPECTED);
-//
-//	ScanOutput("nine", CSerial::EScanType::ST_UNEXPECTED);
-//	ScanOutput("one", CSerial::EScanType::ST_UNEXPECTED);
-//	ScanOutput("four1", CSerial::EScanType::ST_UNEXPECTED);
-//
-//	Scan(Prev, Curr, ">>");
-
-
-
 
 	fd = open(DevicePath.c_str(), O_RDWR|O_NOCTTY|O_SYNC|O_CLOEXEC);
 	if (fd < 0) {
@@ -87,6 +72,7 @@ bool CSerial::Init(const string& ttyDev, int BaudRate, int cflag, int iflag)
 		return false;
 
 	ReadThread.Start();
+	bInitialized = true;
 
 	return true;
 }
@@ -213,14 +199,7 @@ void CSerial::Run()
 
 			if (save_data)
 				fs << CurrBuffer;
-
-
-			//cout << buffer << endl;
-			//cout << "==================" << bytes << endl;
-			//break;
 		}
-		//cout << "111" << endl;
-		//sleep(1);
 	}
 }
 
@@ -245,12 +224,8 @@ void CSerial::SaveOutput(const string& File)
 bool CSerial::WaitUntilSilent(unsigned int Time, unsigned int TimeOut, bool PrintProgres)
 {
 	unsigned int StartTime = time(nullptr);
-//	cout << "start time: " << StartTime << endl;
 
 	while (true) {
-//		cout << "diff0: " << (time(nullptr) - StartTime) << endl;
-//		cout << "diff1: " << (time(nullptr) - refresh_time) << endl;
-
 		if ((time(nullptr) - StartTime) >= Time &&
 			(time(nullptr) - refresh_time) >= Time)
 			return true;
@@ -347,9 +322,6 @@ void CSerial::ScanOutput(const string& Key, EScanType Type, bool bNotice)
 
 void CSerial::AddToScanList(vector<SScanEntry>& List, const SScanEntry& Entry)
 {
-//	if (std::find(List.begin(), List.end(), Key) != List.end())
-//		return;
-
 	auto ent = find_if(List.begin(), List.end(), [&Entry](SScanEntry& obj) -> bool {return obj.Key==Entry.Key;});
 	if(ent!=List.end()){  // entry is exist
 		(*ent).bNotice = Entry.bNotice;
@@ -408,13 +380,10 @@ bool CSerial::Scan(const string& Prev, string& Current, const string& MarkStr)
 CSerial::EScanResult CSerial::WaitOutput(unsigned int milliseconds)
 {
 	unique_lock<std::mutex> lk(scan_mutex);
-//	scan_ready = false;
-//	lk.unlock();
 
 	auto now = chrono::system_clock::now();
 	if (scan_event.wait_until(lk, now + chrono::milliseconds(milliseconds), [&]{return scan_ready;})) {
 		// on event
-		//return false;
 	} else {
 		// timeout
 		return EScanResult::SR_TIMEOUT;//(ExpectedList.size() == 0);
@@ -437,7 +406,6 @@ CSerial::EScanResult CSerial::CheckOutput()
 		return EScanResult::SR_NO_EXPECTED;
 
 	return EScanResult::SR_OK;
-	//return (ExpectedList.size() == 0 && unexpected_count == 0);
 }
 
 

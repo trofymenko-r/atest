@@ -9,18 +9,21 @@
 #define CONTROL_ICSEBUTTON_H_
 
 #include <Button.h>
-#include <Serial.h>
+#include <ICSEControl.h>
 
 class CICSEButton: public CButton {
 public:
-	CICSEButton();
+	CICSEButton(sys::CICSEControl& ICSEControl, int Channel);
 	virtual ~CICSEButton();
 
 private:
-	CSerial* pSerial;
+	sys::CICSEControl& ICSEControl;
+	int Channel;
+
+private:
+	bool Init(){return true;}
 
 public:
-	bool Init();
 	void On();
 	void Off();
 };

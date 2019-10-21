@@ -18,17 +18,12 @@ CLog::~CLog() {
 
 bool CLog::Init()
 {
-
-	//Serial.open("serial");
-	//Seq.open("sequence");
-
 	return true;
 }
 
 void CLog::Close()
 {
-	//Serial.close();
-	//Seq.close();
+
 }
 
 void LogOut(ofstream& Log, ostream& Out, const string& Msg, bool NewLine)
@@ -45,8 +40,6 @@ void UpdateProgress()
 {
 	static const int MaxDots = 5;
 	static int CurrDot = 0;
-
-	//system("setterm -cursor off");
 
 	cout << "\r";
 	for (int ii = 0; ii < MaxDots; ii++) {

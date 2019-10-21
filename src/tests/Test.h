@@ -13,13 +13,15 @@
 #include <Log.h>
 #include <Serial.h>
 #include <fstream>
+
+#include <environment.h>
 #include <ICSEButton.h>
 
 using namespace std;
 
 class CTest {
 public:
-	CTest(CSerial& Serial);
+	CTest(SEnvironment& Env);
 	virtual ~CTest();
 
 public:
@@ -32,11 +34,10 @@ public:
 protected:
 	string Name;
 	string LogDir;
-	CSerial& Serial;
+	SEnvironment& Env;
 	ofstream Common;
 	bool completed;
 	bool failed;
-	CButton *pIgnControl;
 	unsigned int StartTime;
 
 protected:
@@ -49,7 +50,7 @@ public:
 	bool IgnoreLogLevel();
 };
 
-bool InitTests(CSerial& Serial);
+bool InitTests(SEnvironment& Env);
 CTest* GetTest(string Name);
 void PrintTestList();
 

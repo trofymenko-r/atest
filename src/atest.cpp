@@ -14,6 +14,7 @@
 #include <getopt.h>
 #include <Serial.h>
 #include <thread>
+#include <vector>
 #include <unistd.h>
 
 #include <StrBaseTest.h>
@@ -21,15 +22,68 @@
 #include <ManualButton.h>
 #include <App.h>
 #include <ustring.h>
+#include <UsbSerial.h>
+//#include <ICSEControl.h>
+#include <environment.h>
 
 using namespace std;
+using namespace sys;
 
 typedef struct{
 	string test;
 }SSettings;
 
-const SSettings DefaultSettings = {"str_base",       // test name
+const SSettings DefaultSettings = {"str_consumpt",       // test name
                                    };
+bool IsVcpuSerial(CSerial& Serial)
+{
+	return Serial.SendCmdMatch("", "|DM            |");
+}
+
+bool DetectEnvironment(SEnvironment& Env)
+{
+	vector<CUsbSerial::SDeviceEntry> ttyList = CUsbSerial::GetDevicesList("ftdi_sio");
+	if (ttyList.empty()) {
+		cerr << "serial device not detected" << endl;
+		return false;
+	}
+
+	bool bDetectSerial = false;
+	bool bDetectVcpuSerial = false;
+	for (auto& ttyDev: ttyList) {
+		CSerial* pSerial = new CSerial();
+		pSerial->Init(ttyDev.Device, B115200, CBAUD|CS8|CLOCAL|CREAD, IGNPAR);
+		bool bIsVcpuSerial = IsVcpuSerial(*pSerial);
+		delete pSerial;
+		usleep(1000);
+
+		if (!bDetectVcpuSerial && bIsVcpuSerial) {
+			if (!Env.VcpuSerial.Init(ttyDev.Device, B115200, CBAUD|CS8|CLOCAL|CREAD, IGNPAR)) {
+				cerr << "error init VCPU console " << ttyDev.Device << endl;
+				return false;
+			}
+			cout << "detect VCPU console " << ttyDev.Device << endl;
+			bDetectVcpuSerial = true;
+		} else if (!bDetectSerial) {
+			if (!Env.Serial.Init(ttyDev.Device, B115200, CBAUD|CS8|CLOCAL|CREAD, IGNPAR)) {
+				cerr << "error init main console " << ttyDev.Device << endl;
+				return false;
+			}
+			cout << "detect main console " << ttyDev.Device << endl;
+			bDetectSerial = true;
+		}
+	}
+
+    if (!bDetectSerial) {
+    	cerr << "main console not detected" << endl;
+    	return false;
+    }
+
+    if (!bDetectVcpuSerial)
+    	cerr << "VCPU console not detected" << endl;
+
+	return true;
+}
 
 void PrintUsage(const char* cName, const SSettings& Settings)
 {
@@ -55,60 +109,22 @@ int main(int argc, char** argv) {
 	int opt;
 	int option_index = -1;
 
-//	FILE* fred = freopen("output", "w", stdout);
-//	if (!fred) {
-//		cerr << "error open output" << endl;
-//		exit(EXIT_FAILURE);
-//	}
-
-
-//	CSerial* pSerial = new CSerial();
-//    if (pSerial == nullptr) {
-//    	cerr << "error create serial interface" << endl;
-//    	return false;
-//    }
-//
-//    if (!pSerial->Init("ttyUSB7", B115200, CBAUD|CS8|CLOCAL|CREAD, IGNPAR)) {
-//    	cerr << "error init serial interface" << endl;
-//    	return false;
-//    }
-//
-//    for (int ii=0; ii<65536; ii++) {
-//    	char com[2] = {(char)(ii>>8), (char)ii};
-//    	string Resp;
-//    	pSerial->SendCmd(com, 2, Resp, 30);
-//    }
-//
-//    delete pSerial;
-
-
-	string ttyStr = sys::CApp::Exec("find /sys/bus/usb-serial/drivers/ftdi_sio/ -name ttyUSB*");
-    vector<string> ResultStrings = Split(ttyStr, '\n');
-
-    if (ResultStrings.size() == 0) {
-    	cerr << "usb-serial device not detected" << endl;
-    	return false;
-    }
-
-    if (ResultStrings.size() != 1) {
-    	cerr << "clarify usb-serial device:" << endl;
-    	for (auto& str: ResultStrings)
-    		cerr << str << endl;
-    	return false;
-    }
-
-    string ttyDev = ttyStr.substr(ttyStr.find("ttyUSB"));
-    RemoveNewLineChar(ttyDev);
-
-    cout << "detected main serial device: " << ttyDev << endl;
-
-	CSerial Serial;
-	if (!Serial.Init(ttyDev, B115200, CBAUD|CS8|CLOCAL|CREAD, IGNPAR)) {
-		cerr << "serial console init error" << endl;
+	CICSEControl ICSEControl;
+	if (!ICSEControl.Init()) {
+		cerr << "error init ICSE device" << endl;
 		exit(EXIT_FAILURE);
 	}
 
-	InitTests(Serial);
+    SEnvironment Env;
+    Env.pPowerControl = new CICSEButton(ICSEControl, 1);
+    Env.pIgnControl = new CICSEButton(ICSEControl, 0);
+
+    if (!DetectEnvironment(Env)) {
+		cerr << "error init environment" << endl;
+		exit(EXIT_FAILURE);
+	}
+
+	InitTests(Env);
 
 	while ((opt=getopt_long(argc, argv, short_options, long_options, &option_index)) != -1) {
 		switch (opt) {
@@ -138,9 +154,6 @@ int main(int argc, char** argv) {
 		option_index = -1;
 	};
 
-//	CICSEButton Button;
-//	Button.Init();
-
 	CTest* pTest = GetTest(Settings.test);
 	if (!pTest) {
 		cerr << Settings.test << " undefined" << endl;
@@ -157,24 +170,6 @@ int main(int argc, char** argv) {
 		Result = "failed";
 
 	cout << "'" << pTest->getName() << "' test completed as " << Result << endl;
-
-
-
-//	CButton *pStrButton = new CManualButton();//CICSEButton();
-//	pStrButton->Init();
-//
-//	pStrButton->On();
-//	pStrButton->Off();
-
-//	string Response;
-//	while (true) {
-//
-//		if (!Serial.SendCmd("ls -la /vendor", Response))
-//			cerr << "error" << endl;
-//		else
-//			cout << Response << endl;
-//		sleep(5);
-//	}
 
 	return 0;
 }

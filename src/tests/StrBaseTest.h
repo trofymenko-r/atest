@@ -12,15 +12,12 @@
 
 class CStrBaseTest: public CTest {
 public:
-	CStrBaseTest(CSerial& Serial);
+	CStrBaseTest(SEnvironment& Env);
 	virtual ~CStrBaseTest();
 
 public:
 	bool Init();
 	bool Run();
-
-private:
-	ofstream Console;
 };
 
 #endif /* TESTS_STRBASETEST_H_ */
