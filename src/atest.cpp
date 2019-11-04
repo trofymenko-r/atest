@@ -42,6 +42,8 @@ bool IsVcpuSerial(CSerial& Serial)
 
 bool DetectEnvironment(SEnvironment& Env)
 {
+	cout << "init environment" << endl;
+
 	vector<CUsbSerial::SDeviceEntry> ttyList = CUsbSerial::GetDevicesList("ftdi_sio");
 	if (ttyList.empty()) {
 		cerr << "serial device not detected" << endl;
@@ -118,6 +120,7 @@ int main(int argc, char** argv) {
     SEnvironment Env;
     Env.pPowerControl = new CICSEButton(ICSEControl, 1);
     Env.pIgnControl = new CICSEButton(ICSEControl, 0);
+    Env.pUsbConnector = &ICSEControl;
 
     if (!DetectEnvironment(Env)) {
 		cerr << "error init environment" << endl;

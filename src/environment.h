@@ -16,6 +16,7 @@ typedef struct {
 	CSerial VcpuSerial;
 	CICSEButton* pPowerControl;
 	CICSEButton* pIgnControl;
+	sys::CICSEControl* pUsbConnector;
 }SEnvironment;
 
 #endif /* ENVIRONMENT_H_ */
