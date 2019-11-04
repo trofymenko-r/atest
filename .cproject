@@ -32,6 +32,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cross/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atest/src/control}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atest/src/log}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atest/src}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.dialect.std.1737852906" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++11" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.279023337" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -48,6 +49,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cross/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atest/src/control}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atest/src/log}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atest/src}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.dialect.std.1061293899" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.c11" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1797910477" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
@@ -79,6 +81,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cross/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atest/src/control}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atest/src/log}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atest/src}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1857088745" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
@@ -139,6 +142,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/sys}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atest/src/control}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atest/src/log}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atest/src}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1226001657" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -155,6 +159,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/sys}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atest/src/control}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atest/src/log}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atest/src}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1454997585" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -185,6 +190,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/sys}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atest/src/control}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atest/src/log}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atest/src}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1151454169" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
