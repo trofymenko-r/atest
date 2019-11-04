@@ -7,6 +7,8 @@
 
 #include <StrBaseTest.h>
 #include <StrConsumptTest.h>
+#include <UsbCPTest.h>
+
 #include <iostream>
 
 bool InitTests(SEnvironment& Env)
@@ -16,6 +18,9 @@ bool InitTests(SEnvironment& Env)
 	CTest::TestList.push_back(pTest);
 
 	pTest = new CStrConsumptTest(Env);
+	CTest::TestList.push_back(pTest);
+
+	pTest = new CUsbCPTest(Env);
 	CTest::TestList.push_back(pTest);
 
 	return true;
