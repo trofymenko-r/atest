@@ -7,12 +7,12 @@
 
 #include <ManualButton.h>
 
-CManualButton::CManualButton() {
-	// TODO Auto-generated constructor stub
-
-}
-
-CManualButton::~CManualButton() {
-	// TODO Auto-generated destructor stub
-}
+//CManualButton::CManualButton() {
+//	// TODO Auto-generated constructor stub
+//
+//}
+//
+//CManualButton::~CManualButton() {
+//	// TODO Auto-generated destructor stub
+//}
 
