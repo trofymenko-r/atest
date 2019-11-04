@@ -7,7 +7,6 @@
 
 #include <StrBaseTest.h>
 #include <ManualButton.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 CStrBaseTest::CStrBaseTest(SEnvironment& Env):CTest(Env)
@@ -24,11 +23,6 @@ bool CStrBaseTest::Init()
 {
 	if (!CTest::Init())
 		return false;
-
-	if (!Env.VcpuSerial.IsInitialized()) {
-		cerr << "'" << Name << "' test needs VCPU console" << endl;
-		return false;
-	}
 
 	return true;
 }
