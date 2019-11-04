@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include <StrConsumptTest.h>
+#include <App.h>
 
 CStrConsumptTest::CStrConsumptTest(SEnvironment& Env):CTest(Env)
 {
@@ -24,6 +25,11 @@ bool CStrConsumptTest::Init()
 {
 	if (!CTest::Init())
 		return false;
+
+	if (!Env.VcpuSerial.IsInitialized()) {
+		cerr << "'" << Name << "' test needs VCPU console" << endl;
+		return false;
+	}
 
 	return true;
 }
@@ -51,7 +57,7 @@ bool CStrConsumptTest::Run()
 
 		Env.pPowerControl->Off();
 		Log(Common, cout, "power off");
-		sleep(1);
+		sleep(3);
 		Env.pPowerControl->On();
 		Log(Common, cout, "power on");
 
@@ -114,8 +120,14 @@ bool CStrConsumptTest::Run()
 
 		//=======================================================-
 
+		sys::CApp::Exec("notify-send -u critical \"SELF-REBOOT DETECTED\"");
 		Log(Common, cout, "detected VCPU self-reboot");
 		Log(Common, cout, "go to suspend");
+
+		Env.Serial.BlankLine(3);
+		Env.Serial.Send("cat /d/rpm_stats");
+		Env.Serial.BlankLine(2);
+		Env.Serial.Send("cat /d/rpm_master_stats");
 		sleep(1);
 		Env.pIgnControl->Off();
 		Log(Common, cout, "IGN off");
@@ -172,7 +184,7 @@ bool CStrConsumptTest::Run()
 		if (!IgnoreLogLevel())
 			Log(Common, cerr, "warning: ignore loglevel");
 
-		Env.Serial.Send("dmesg -C");
+		//Env.Serial.Send("dmesg -C");
 
 		Env.Serial.ScanOutput("Suspending console(s)", CSerial::EScanType::ST_EXPECTED, true);
 		Result = Env.Serial.WaitOutput(40*1000);
@@ -185,6 +197,9 @@ bool CStrConsumptTest::Run()
 		}
 		Env.Serial.ResetScaner();
 
+//		sleep(5);
+//		Env.Serial.BlankLine(3);
+//		Env.Serial.Send("dmesg");
 		sleep(100);
 
 		break;
