@@ -13,6 +13,7 @@
 #include <Log.h>
 #include <Serial.h>
 #include <fstream>
+#include <sys/stat.h>
 
 #include <environment.h>
 #include <ICSEButton.h>
